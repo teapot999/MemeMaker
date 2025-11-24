@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="media">
+    <property name="geometry">
+     <rect>
+      <x>59</x>
+      <y>50</y>
+      <width>491</width>
+      <height>500</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>690</y>
+      <width>491</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>50</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="save_button">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Сохранить</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="menu_button">
+       <property name="text">
+        <string>В меню</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QComboBox" name="demik_vars">
+    <property name="geometry">
+     <rect>
+      <x>235</x>
+      <y>665</y>
+      <width>141</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Добавить текст</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Изменить текст</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Отменить действие</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QSlider" name="p_jackal_slider">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>600</y>
+      <width>500</width>
+      <height>10</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="p_jackal_label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>620</y>
+      <width>500</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>560</y>
+      <width>491</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QLabel" name="hint_top_2">
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="text">
+        <string>Текст сверху</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="demik_top_2"/>
+     </item>
+     <item>
+      <widget class="QLabel" name="hint_bottom_2">
+       <property name="text">
+        <string>Текст снизу</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="demik_bottom_2"/>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="v_jackal_label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>620</y>
+      <width>500</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="v_jackal_slider">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>600</y>
+      <width>500</width>
+      <height>10</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="bomb_overlay">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>660</y>
+      <width>131</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Выбрать наложение</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>600</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="photo">
+    <property name="title">
+     <string>Фото</string>
+    </property>
+    <addaction name="p_jackal"/>
+    <addaction name="demik"/>
+   </widget>
+   <widget class="QMenu" name="video">
+    <property name="title">
+     <string>Видео</string>
+    </property>
+    <addaction name="v_jackal"/>
+    <addaction name="bomb"/>
+   </widget>
+   <widget class="QMenu" name="project">
+    <property name="title">
+     <string>Проекты</string>
+    </property>
+    <addaction name="projects"/>
+    <addaction name="separator"/>
+    <addaction name="drop"/>
+   </widget>
+   <addaction name="photo"/>
+   <addaction name="video"/>
+   <addaction name="project"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="p_jackal">
+   <property name="text">
+    <string>Шакалинатор</string>
+   </property>
+  </action>
+  <action name="demik">
+   <property name="text">
+    <string>Демотивинатор</string>
+   </property>
+  </action>
+  <action name="v_jackal">
+   <property name="text">
+    <string>Шакалинатор</string>
+   </property>
+  </action>
+  <action name="bomb">
+   <property name="text">
+    <string>Бомбинатор</string>
+   </property>
+  </action>
+  <action name="projects">
+   <property name="text">
+    <string>Проектинатор</string>
+   </property>
+  </action>
+  <action name="drop">
+   <property name="text">
+    <string>Сбросинатор</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
