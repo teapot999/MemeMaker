@@ -78,6 +78,11 @@ def str_to_dict(st: str):
 class DataBase:
     def __init__(self):
         self.table = sqlite3.connect('database.db')
+        with self.table as table:
+            cur = table.cursor()
+            # cur.execute('DROP TABLE projects')
+            cur.execute(
+                'CREATE TABLE IF NOT EXISTS projects (name TEXT, date TEXT, time TEXT, type INT, res_path TEXT, project_dir TEXT, params TEXT)')
 
     def add_project(self, name, date, time, func_type, res_path, project_dir, params):
         with self.table as table:
@@ -87,6 +92,15 @@ class DataBase:
                 (name, date, time, func_type, res_path, project_dir, params))
             table.commit()
             return
+
+    def edit_project_name(self, i, new):
+        with self.table as table:
+            cur = table.cursor()
+            c_name, c_date, c_time, c_path = self.all_projects('name, date, time, res_path')[i]
+            cur.execute('UPDATE projects SET name = ? WHERE date = ? AND time = ?', (new, c_date, c_time))
+            cur.execute('UPDATE projects SET res_path = ? WHERE date = ? AND time = ?',
+                        (c_path.replace(c_name, new), c_date, c_time))
+            table.commit()
 
     def all_projects(self, params):
         with self.table as table:
@@ -123,8 +137,9 @@ class Settings(QWidget, Ui_Form):
         with self.table as table:
             cur = table.cursor()
             cur.execute('CREATE TABLE IF NOT EXISTS settings (jackal INT, frame INT, frame_width INT)')
+            cur.execute('INSERT INTO settings (jackal, frame, frame_width) VALUES (20, 80, 3)')
             self.update_sliders()
-            table.commit()
+            self.table.commit()
 
         self.edit_jackal.valueChanged.connect(self.change_value_by_slider)
         self.edit_frame.valueChanged.connect(self.change_value_by_slider)
@@ -170,7 +185,7 @@ class Settings(QWidget, Ui_Form):
                 self.updated = True
                 self.hide()
         except sqlite3.OperationalError as e:
-            print(e)
+            pass
 
     def update_sliders(self):
         with self.table as table:
@@ -193,6 +208,7 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
 
         self.function_data = {'source_file_path': '', 'function_name': '', 'meta': {}}
         self.editing = False
+        self.updating = False
 
         self.db = DataBase()
         self.update_table()
@@ -231,6 +247,7 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
         self.demik_bottom_2.textChanged.connect(self.demik_photo)
 
         self.projects_table.cellClicked.connect(self.item_selected)
+        self.projects_table.itemChanged.connect(self.item_changed)
         self.projects.triggered.connect(self.projects_list)
         self.drop.triggered.connect(self.drop_table)
         self.open_button.clicked.connect(self.open_project)
@@ -283,7 +300,6 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
             pix = QPixmap('res.jpg').scaled(*new.size, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
             self.media.setPixmap(pix)
             self.p_jackal_label.setText(f'{jackal_degree(f[META][JACKAL_VALUE])} ({f[META][JACKAL_VALUE]})')
-            print(f)
         except Exception as e:
             self.statusbar.showMessage(f'Неожиданная ошибка: {e}')
 
@@ -345,12 +361,11 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
             dem.convert('RGB').save(f'res.jpg')
             pix = QPixmap(f'res.jpg').scaled(*dem.size, QtCore.Qt.AspectRatioMode.KeepAspectRatio)
             self.media.setPixmap(pix)
-            print(f)
         except Exception as e:
             self.statusbar.showMessage(f'Неожиданная ошибка: {e}')
 
     def projects_list(self):
-        self.change_elements(self.project_elements)
+        self.change_elements(self.project_elements, True)
         self.media.clear()
 
     def item_selected(self):
@@ -358,16 +373,24 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
         self.delete_button.setEnabled(True)
         self.menu_button_2.setEnabled(True)
 
+    def item_changed(self, item):
+        if not self.function_data[SOURCE_PATH] and not self.updating:
+            if item.column() == 2:
+                c_name, c_date, c_time = self.db.all_projects('name, date, time')[item.row()]
+                dir_name = '__'.join([c_date, c_time, c_name])
+                new_name = '__'.join([c_date, c_time, item.text()])
+                os.rename(f'projects/{dir_name}', f'projects/{new_name}')
+                self.db.edit_project_name(item.row(), item.text())
+            self.update_table()
+
     def open_project(self):
         try:
-            if not self.projects_table.selectedItems():
+            if not self.projects_table.selectedItems() or len(self.projects_table.selectedItems()) > 1:
                 self.open_button.setEnabled(False)
                 self.delete_button.setEnabled(False)
-                self.menu_button_2.setEnabled(False)
             else:
                 t = self.projects_table
                 i = t.selectedItems()[0]
-                print(self.db.all_projects('*'))
                 project = self.db.all_projects('type, res_path, params')[i.row()]
                 f = self.function_data
                 f[FUNC_NAME] = project[0]
@@ -381,10 +404,9 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
 
     def delete_project(self):
         try:
-            if not self.projects_table.selectedItems():
+            if not self.projects_table.selectedItems() or len(self.projects_table.selectedItems()) > 1:
                 self.open_button.setEnabled(False)
                 self.delete_button.setEnabled(False)
-                self.menu_button_2.setEnabled(False)
             else:
                 i = self.projects_table.selectedItems()[0]
                 confirm = QMessageBox.warning(self, 'Удалить проект?',
@@ -445,7 +467,6 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
                     now = datetime.now().strftime('%d-%m-%Y__%H-%M-%S-%f')
                     if button:
                         if self.editing:
-                            print(self.db.one_project('date, time, name', 'res_path = ?', (f[SOURCE_PATH],)))
                             date1, time1, name1 = self.db.one_project('date, time, name', 'res_path = ?',
                                                                       (f[SOURCE_PATH],))
                             pname = f'projects/{date1}__{time1}__{name1}'
@@ -471,22 +492,20 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
                         pname = f'projects/{now}__{name}'
                     d, t = now.split('__')
                     params = dict_to_str(f[META])
-                    print(name, d, t, FUNC_TYPES[f[FUNC_NAME]], f'{pname}/source.jpg', button, params)
                     self.db.add_project(name, d, t, FUNC_TYPES[f[FUNC_NAME]], f'{pname}/source.jpg', button, params)
-                    print(self.db.all_projects('*'))
                     self.update_table()
                     self.editing = False
 
                     self.projects_table.resizeColumnsToContents()
-                    # print(self.cur.execute('SELECT * FROM projects').fetchall())
         except Exception as e:
             self.statusbar.showMessage(f'Неожиданная ошибка: {e}')
 
     def back_to_menu(self):
-        self.change_elements(self.menu_elements)
+        self.change_elements(self.menu_elements, True)
         self.media.clear()
         self.reset_func_data()
         self.statusbar.clearMessage()
+        self.editing = False
         try:
             os.remove('res.jpg')
         except:
@@ -499,13 +518,16 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
     def reset_func_data(self):
         self.function_data = {'source_file_path': '', 'function_name': '', 'meta': {}}
 
-    def change_elements(self, to_show: list = None):
+    def change_elements(self, to_show: list = None, reset_data=False):
         hide_elements(*self.func_elements)
         if to_show is not None:
             show_elements(*to_show)
+        if reset_data:
+            self.reset_func_data()
 
     def update_table(self):
         try:
+            self.updating = True
             result = self.db.all_projects('type, date, name')
             self.projects_table.setRowCount(len(result))
             self.projects_table.setColumnCount(len(result[0]) if result else 1)
@@ -514,6 +536,7 @@ class MemeMaker(QMainWindow, Ui_MainWindow):
                     if isinstance(val, int):
                         val = TRANSP_FUNCTIONS_TABLE[val]
                     self.projects_table.setItem(i, j, QTableWidgetItem(str(val)))
+            self.updating = False
         except Exception as e:
             self.statusbar.showMessage(f'Неожиданная ошибка: {e}')
 

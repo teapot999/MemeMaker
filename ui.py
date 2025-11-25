@@ -123,7 +123,6 @@ class Ui_MainWindow(object):
         self.delete_button.setObjectName("delete_button")
         self.projects_layout.addWidget(self.delete_button)
         self.menu_button_2 = QtWidgets.QPushButton(parent=self.horizontalLayoutWidget)
-        self.menu_button_2.setEnabled(False)
         self.menu_button_2.setObjectName("menu_button2")
         self.projects_layout.addWidget(self.menu_button_2)
         self.projects_table = QtWidgets.QTableWidget(parent=self.centralwidget)
